@@ -1,0 +1,11 @@
+[package]
+name = "shell-exec"
+version = "0.1.2"
+edition = "2024"
+license = "Unlicense"
+author = "Christof Fetzer"
+description = "Build check_cpufeatures"
+
+[dependencies]
+shells = "*"
+colored = "*"
