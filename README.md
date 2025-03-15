@@ -58,7 +58,7 @@ Here is a simple program that uses this crate:
 //!
 //! [dependencies]
 //! clap = { version = "4", features = ["derive"] }
-//! shell-exec = { version = "*", path = "/home/ubuntu/subtree-sconectl/check_cpufeatures/shell-exec" }
+//! sh-exec = "*" 
 //! colored = "*"
 //! ```
 
@@ -94,3 +94,38 @@ fn main() {
 }
 ```
 
+Executing the code as a `rust-script` (see file `example.rs`), we get the following output:
+
+```bash
+$ ./example.rs
+exec!(17068-22053-696,ls -d /etc)
+ls -d of / is /
+
+exec!(15911-12192-19189,ls /etc/hosts)
+ls of /etc/hosts is /etc/hosts
+
+exec!(28328-2323-44343,bash -c 'echo Hello World')
+Output: Hello World
+
+exec!(28328-2323-3278,nonexistent_command)
+Expected error: Command failed: nonexistent_command
+Exit code: 127
+Error ID: 28328-2323-3278
+Standard error:
+sh: 1: nonexistent_command: not found
+
+
+exec!(28328-2323-333,nonexistent_command arg1 arg2)
+trap_panics_and_errors: 18428-30925-25863
+  Version: 0.1.0
+  Name: example
+  Authors: Anonymous
+  Description:
+  Homepage:
+  Repository:
+  Error: Command failed: nonexistent_command arg1 arg2
+Exit code: 127
+Error ID: 28328-2323-333
+Standard error:
+sh: 1: nonexistent_command: not found
+```

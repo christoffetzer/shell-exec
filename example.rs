@@ -6,7 +6,7 @@
 //!
 //! [dependencies]
 //! clap = { version = "4", features = ["derive"] }
-//! sh-exec = version = "*"
+//! sh-exec = "*"
 //! colored = "*"
 //! ```
 
