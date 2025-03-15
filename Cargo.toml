@@ -7,5 +7,5 @@ author = "Christof Fetzer"
 description = "Build check_cpufeatures"
 
 [dependencies]
-shells = "*"
-colored = "*"
+shells = "0.2.0"
+colored = "3.0.0"
