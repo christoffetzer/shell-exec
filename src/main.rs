@@ -1,4 +1,4 @@
-use shell_exec::*;
+use sh_exec::*;
 
 fn main() {
     trap_panics_and_errors!("18428-30925-25863", || {

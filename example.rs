@@ -6,11 +6,11 @@
 //!
 //! [dependencies]
 //! clap = { version = "4", features = ["derive"] }
-//! shell-exec = { version = "*", path = "/home/ubuntu/subtree-sconectl/check_cpufeatures/shell-exec" }
+//! sh-exec = version = "*"
 //! colored = "*"
 //! ```
 
-use shell_exec::*;
+use sh_exec::*;
 
 fn main() {
     trap_panics_and_errors!("18428-30925-25863", || {
@@ -39,4 +39,4 @@ fn main() {
  
         Ok::<(), Box<dyn Error>>(())
     });
-} 
+}

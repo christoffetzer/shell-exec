@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "shell-exec"
+name = "sh-exec"
 version = "0.1.2"
 dependencies = [
  "colored",
