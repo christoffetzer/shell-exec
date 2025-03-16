@@ -1,11 +1,19 @@
 [package]
 name = "sh-exec"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2024"
 license = "Unlicense"
-author = "Christof Fetzer"
+authors = [ "Christof Fetzer" ]
 description = "Set of functions and macros to write more concise rust scripts."
+repository = "https://github.com/christoffetzer/shell-exec"
+documentation = "https://docs.rs/sh-exec"
+homepage = "https://github.com/christoffetzer/shell-exec"
+readme = "README.md"
+keywords = ["shell", "script", "exec", "sh-exec"]
+categories = ["development-tools", "shell"] 
 
 [dependencies]
 shells = "0.2.0"
 colored = "3.0.0"
+log =  "0.4.26"
+env_logger = "0.11.7"

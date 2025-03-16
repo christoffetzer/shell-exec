@@ -36,6 +36,20 @@ As for macro `format!`,  macro `exec!` supports positional arguments:
 ```
 
 
+Macro `s!` is similar to macro `exec!` but it uses crate `log` to issue output (instead of `eprintln!`). 
+Hence, it does not have a flag `verbose`.  Moreover, it logs the command at `info` level, 
+logs the output at `debug` level, and errors at `error` level.
+
+Example:
+
+```rust
+        // s! the command is executed and the output is returned
+        // s! uses the logger to print the command if the log level is set to info
+        // s! uses the logger to print the output of the command if the log level is set to debug
+        s!("14526-30026-17058", "echo Hello World")?;
+```
+
+
 Hence, prints on `stderr` an error message that includes:
 
 - the command line that failed,
@@ -47,7 +61,7 @@ Hence, prints on `stderr` an error message that includes:
 
 ## Example
 
-Here is a simple program that uses this crate:
+Here is a simple program that uses this crate. Note that you need to define dependency `colored`.
 
 ```rust
 #!/usr/bin/env rust-script
@@ -81,13 +95,18 @@ fn main() {
         let output = exec!("28328-2323-44343", true, "bash -c 'echo Hello World'")?;
         println!("Output: {}", output);
 
+        // s! the command is executed and the output is returned
+        // s! uses the logger to print the command if the log level is set to info
+        // s! uses the logger to print the output of the command if the log level is set to debug
+        s!("14526-30026-17058", "echo Hello World")?;
+
         // Test failing command
         match exec!("28328-2323-3278", true, "nonexistent_command") {
             Ok(output) => println!("Unexpected success: {}", output),
             Err(e) => println!("Expected error: {}", e),
         }
         // expecting to fail:
-        exec!( "28328-2323-333", true,  "nonexistent_command arg1 arg2")?;
+        s!("14526-30026-17061", "exit 1")?;
  
         Ok::<(), Box<dyn Error>>(())
     });

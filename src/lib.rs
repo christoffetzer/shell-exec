@@ -5,7 +5,7 @@ use std::error::Error;
 use std::fmt;
 
 /// Custom error type for shell command execution
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ShellError<'a> {
     command: String,
     exit_code: i32,
@@ -33,11 +33,13 @@ impl ShellError<'_> {
     }
 }
 
+// Implement Display trait for ShellError
 impl fmt::Display for ShellError<'_> {
+    /// Formats the ShellError instance
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "{}: {}\nExit code: {}\nError ID: {}\n",
+            "{}: '{}'\nsh_exec Exit code: {}\nsh_exec Error ID:  {}\n",
             "Command failed".red(),
             self.command,
             self.exit_code,
@@ -72,6 +74,8 @@ pub fn execute_command(cmd: &str, error_id: &'static str) -> Result<String, Shel
     }
 }
 
+/// read the content of a given environment variable as a String
+/// if the environment variable does not exist, return a `ShellError`
 pub fn get_env(env: &str, error_id: &'static str) -> Result<String, ShellError<'static>> {
     // Get VERSION from environment
     match env::var(env) {
@@ -86,6 +90,9 @@ pub fn get_env(env: &str, error_id: &'static str) -> Result<String, ShellError<'
     }
 }
 
+// main_run is a simple wrapper that prints cargo-related information 
+// in case the function `run` returns an error
+// Recommendation: use macro `trap_panics_and_errors` instead
 pub fn main_run(run: fn() -> Result<(), Box<dyn Error>>) {
     if let Err(e) = run() {
         eprintln!("Version: {}", env!("CARGO_PKG_VERSION"));
@@ -112,19 +119,20 @@ macro_rules! trap_panics_and_errors {
         use std::process;
         use std::error::Error;
         use colored::*;
+        use log::*;
         match std::panic::catch_unwind(|| {
             match $main() {
                 Err(e) => {
-                    eprintln!("{}: {}", "trap_panics_and_errors".red(), $error_id.green());
-                    eprintln!("  Version: {}", env!("CARGO_PKG_VERSION"));
-                    eprintln!("  Name: {}", env!("CARGO_PKG_NAME"));
-                    eprintln!("  Authors: {}", env!("CARGO_PKG_AUTHORS"));
+                    error!("{}: {}", "trap_panics_and_errors".red(), $error_id.green());
+                    error!("  Version: {}", env!("CARGO_PKG_VERSION"));
+                    error!("  Name: {}", env!("CARGO_PKG_NAME"));
+                    error!("  Authors: {}", env!("CARGO_PKG_AUTHORS"));
 
                     // Optional fields
-                    eprintln!("  Description: {}", env!("CARGO_PKG_DESCRIPTION"));
-                    eprintln!("  Homepage: {}", env!("CARGO_PKG_HOMEPAGE"));
-                    eprintln!("  Repository: {}", env!("CARGO_PKG_REPOSITORY"));
-                    eprintln!("  Error: {e}");
+                    error!("  Description: {}", env!("CARGO_PKG_DESCRIPTION"));
+                    error!("  Homepage: {}", env!("CARGO_PKG_HOMEPAGE"));
+                    error!("  Repository: {}", env!("CARGO_PKG_REPOSITORY"));
+                    error!("  Error: {e}");
                     // Exit with error (non-zero)
                     process::exit(1)
                 }
@@ -143,6 +151,9 @@ macro_rules! trap_panics_and_errors {
     };
 }
 
+/// Execute a shell command and return the output
+/// The command is formatted using the given arguments
+/// The command is printed if the verbose flag is set to true (useful for debugging)
 #[macro_export]
 macro_rules! exec {
     ($error_id:literal , $verbose:expr , $($cmd:tt )* ) => {{
@@ -151,6 +162,28 @@ macro_rules! exec {
         execute_command(formatted_str, $error_id)
     }};
 }
+
+/// Execute a shell command and return the output
+/// The command is formatted using the given arguments
+/// The command is printed at the INFO level
+/// The output of the command is printed at the DEBUG level
+/// In case of an error, the error is printed at the ERROR level
+/// The error is returned
+#[macro_export]
+macro_rules! s {
+    ($error_id:literal , $($cmd:tt )* ) => {{
+        let formatted_str = &format!($( $cmd )*);
+        info!("{}", format!("s!({},{})", $error_id, formatted_str ).magenta());
+        let output = execute_command(formatted_str, $error_id);
+        // Log output
+        match output.clone() {
+            Ok(output) => debug!("{}", output),
+            Err(e) => error!("{}", e),
+        }
+        output
+    }};
+}
+
 
 #[cfg(test)]
 mod tests {
