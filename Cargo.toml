@@ -9,8 +9,8 @@ repository = "https://github.com/christoffetzer/shell-exec"
 documentation = "https://docs.rs/sh-exec"
 homepage = "https://github.com/christoffetzer/shell-exec"
 readme = "README.md"
-keywords = ["shell", "script", "exec", "sh-exec"]
-categories = ["development-tools", "shell"] 
+keywords = ["script", "exec", "sh-exec"]
+categories = ["development-tools::build-utils"] 
 
 [dependencies]
 shells = "0.2.0"
