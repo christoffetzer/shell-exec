@@ -157,6 +157,7 @@ macro_rules! trap_panics_and_errors {
 #[macro_export]
 macro_rules! exec {
     ($error_id:literal , $verbose:expr , $($cmd:tt )* ) => {{
+        use colored::Colorize;
         let formatted_str = &format!($( $cmd )*);
         if $verbose { eprintln!("{}", format!("exec!({},{})", $error_id, formatted_str ).magenta()) }
         execute_command(formatted_str, $error_id)
@@ -172,15 +173,72 @@ macro_rules! exec {
 #[macro_export]
 macro_rules! s {
     ($error_id:literal , $($cmd:tt )* ) => {{
+        use colored::Colorize;
+        use log::{debug, info, error};
         let formatted_str = &format!($( $cmd )*);
         info!("{}", format!("s!({},{})", $error_id, formatted_str ).magenta());
         let output = execute_command(formatted_str, $error_id);
         // Log output
         match output.clone() {
-            Ok(output) => debug!("{}", output),
+            std::result::Result::Ok(output) => debug!("{}", output),
             Err(e) => error!("{}", e),
         }
         output
+    }};
+}
+
+/// Execute a shell command and return the output
+/// The command is formatted using the given arguments
+/// The command is printed at the INFO level
+/// The output of the command is printed at the DEBUG level
+/// In case of an error, the error is printed at the ERROR level
+/// The error is returned
+#[macro_export]
+macro_rules! a {
+    ($error_id:literal , $duration:tt, $($cmd:tt )* ) => {{
+            use std::{thread, time};
+            use colored::Colorize;
+            use log::{debug, info, error};
+            let handle = thread::spawn( || {
+                let formatted_str = &format!($( $cmd )*);
+                info!("{}", format!("s!({},{})", $error_id, formatted_str ).magenta());
+                let output = execute_command(formatted_str, $error_id);
+                // Log output
+                match output.clone() {
+                    std::result::Result::Ok(output) => debug!("{}", output),
+                    std::result::Result::Err(e) => error!("{}", e),
+                }
+                output
+            });
+            let ten_millis = time::Duration::from_millis(10);
+            let now = time::Instant::now();
+            
+            loop {
+                if handle.is_finished() {
+                    break;
+                }
+                thread::sleep(ten_millis);
+                if now.elapsed() >= $duration {
+                    break;
+                }
+            }
+            if handle.is_finished() {
+                match handle.join() {
+                    std::result::Result::Ok(result) => {
+                        std::result::Result::Ok(result?)
+                    }
+                    std::result::Result::Err(e) => {
+                        let cmd = format!($( $cmd )*);
+                        let error = ShellError::new(cmd, -2, String::from("Join Failed"), String::from("Joining of command failed"), $error_id);
+                        std::result::Result::Err(error)    
+                    }
+                }
+            } else {    
+                let cmd = format!($( $cmd )*);
+                let error = ShellError::new(cmd, -1, String::from("Timeout"), String::from("Command timed out"), $error_id);
+                std::result::Result::Err(error)
+            }
+        
     }};
 }
 

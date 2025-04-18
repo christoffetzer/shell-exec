@@ -1,14 +1,18 @@
 use sh_exec::*;
-fn main() {
-    trap_panics_and_errors!("18428-30925-25863", || {
+use anyhow::*; // show how to use together with anyhow
+
+fn main() -> Result<()> {
+        use std::time;
+
         env_logger::init();
 
+    
         // example: ls of /tmp
         let path="/etc";
-        println!("- ls of {path} is {}", exec!("17068-22053-696", true, "ls {path}")?);
+        println!("- ls of {path} is {}", exec!("17068-22053-696", true, "ls {path}").with_context(|| format!("Very unexpected - ls failed on {path}"))?);
 
         // example: with position argument "/"
-        println!("ls of {path} is {}", exec!("15911-12192-19189", false,  "ls {}", "/")?);
+        println!("ls of {path} is {}", s!("15911-12192-19189",  "ls {}", "/").with_context(|| "Very unexpected - ls failed on /".to_string())?);
 
         // example: with named argument p="/tmp"
         println!("ls of {path} is {}", exec!("15911-12192-19189", true, "ls {p}", p="/etc")?);
@@ -23,13 +27,15 @@ fn main() {
         s!("14526-30026-17058", "echo Hello World")?;
 
         // Test failing command
-        match exec!("28328-2323-3278", true, "nonexistent_command") {
-            Ok(output) => println!("Unexpected success: {}", output),
+        match s!("28328-2323-3278", "nonexistent_command").with_context(|| "Failed to execute command 'nonexistent_command'".to_string()) {
+            std::result::Result::Ok(output) => println!("Unexpected success: {}", output),
             Err(e) => println!("Expected error: {}", e),
         }
-        // expecting to fail:
-        s!("14526-30026-17061", "exit 1")?;
 
-        Ok::<(), Box<dyn Error>>(())
-    });
-}
+        // macro a! provides timeouts and it will return with a Timeout error 
+        // if the command does not finish in time
+        let ten_secs = time::Duration::from_secs(10);
+
+        println!("sleep = {:?}", a!("14526-30888026-777", ten_secs, "sleep 2; echo Hello World"));
+        Ok(())
+    }

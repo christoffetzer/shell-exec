@@ -1,6 +1,6 @@
 [package]
 name = "sh-exec"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2024"
 license = "Unlicense"
 authors = [ "Christof Fetzer" ]
@@ -17,3 +17,8 @@ shells = "0.2.0"
 colored = "3.0.0"
 log =  "0.4.27"
 env_logger = "0.11.8"
+anyhow = "1.0.98"
+pollster = "0.4.0"
+async-std = "1.13.1"
+tokio = { version = "*", features = ["rt-multi-thread", "time"] }
+thread_tryjoin = "*"

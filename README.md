@@ -52,7 +52,10 @@ Hence, it does not have a flag `verbose`.  Moreover, it
 
 On success of the executed command, `sh!` returns the `stdout` of the executed command wrapped in `Ok(stdout)`.
 
-Example:
+
+## Example
+
+You can use macro `s!` as follows:
 
 ```rust
         // s! the command is executed and the output is returned
@@ -61,7 +64,6 @@ Example:
         s!("14526-30026-17058", "echo Hello World")?;
 ```
 
-
 On error, `s!`, logs an error that includes:
 
 - the command line that failed,
@@ -69,9 +71,50 @@ On error, `s!`, logs an error that includes:
 - the stdout,
 - the stderr,
 
-- the cargo information related to this 
+You can combine macro `s!` with crate `anyhow` to add more context to error messages.
 
-## Example
+```Rust
+
+use sh_exec::*;
+// show how to use together with anyhow
+use anyhow::*;
+
+fn main() -> Result<()> {
+        env_logger::init();
+
+        // example: ls of /tmp
+        let path="/etc";
+        println!("- ls of {path} is {}", exec!("17068-22053-696", true, "ls {path}").with_context(|| format!("Very unexpected - ls failed on {path}"))?);
+
+        // example: with position argument "/"
+        println!("ls of {path} is {}", s!("15911-12192-19189",  "ls {}", "/").with_context(|| "Very unexpected - ls failed on /".to_string())?);
+
+        // Explicit error handling
+        match s!("28328-2323-3278", "nonexistent_command").with_context(|| "Failed to execute command 'nonexistent_command'".to_string()) {
+            std::result::Result::Ok(output) => println!("Unexpected success: {}", output),
+            Err(e) => println!("Expected error: {}", e),
+        }
+
+        Ok(())
+    }
+```
+
+## Macro `a!`
+
+Macro `a!` is similar to macro `s!` but it has a timeout argument. If the command does not
+finish in time, a timeout is returned.
+
+Example:
+
+```Rust
+        // macro a! provides timeouts and it will return with a Timeout error 
+        // if the command does not finish in time
+        let ten_secs = time::Duration::from_secs(3);
+
+        println!("sleep = {:?}", a!("14526-30888026-777", ten_secs, "sleep 2; echo Hello World"));
+```
+
+## `rust-script` Example
 
 Here is a simple program that uses this crate. Note that you need to define dependency `sh-exec` to import this crate and additionally dependencies `colored`, and `log` in your Cargo.toml:
 
