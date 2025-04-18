@@ -1,17 +1,23 @@
 # shell-exec
 
-This is a crate that simplifies the execution of CLI programs from Rust programs using a macro `exec!(error_id, cmd)`. The `error_id` is just a unique string literal that is printed in the case of an error. I typically generate this string literal as follows:
+This Rust crate simplifies the execution of CLI programs by a Rust programs. It exports two macros: `s!` and `exec!`. In general, you want to use macro `s!` to execute shell commands. We export  `exec!` for backward compatibility with some existing code.
+
+## Macro `exec!`
+
+Macro `exec!` takes three agruments: `exec!(error_id, verbose, cmd)`. Argument `error_id` is just a unique string literal that is printed in case of an error. I typically generate this string literal as follows:
 
 ```bash
 echo "\"$RANDOM-$RANDOM-$RANDOM\", "
 ```
 
-and pasting the output in the as the first argument of `exec!`. This simplifies finding the right code snipped in case you need to track down the code that issued a certain error message.
+and paste the output as the first argument of macro `exec!` (or, even better the first argument of `s!`). This simplifies finding the code that issued a certain error message.
 
-On success, `exec!` returns the `stdout` of the executed command. If the execution fails, the macro retuns an `Err` of type `ShellError`.  One can handle the errors using the question mark operator:
+Argument `verbose` must be of type `bool`. If it is `true`, the command that will be executed is first printed to `stderr`.
+
+On success, `exec!` returns the `stdout` of the executed command. If the execution fails, the macro returns an `Err` of type `ShellError`.  One can handle the errors using the question mark operator:
 
 ```rust
-    exec!("10874-26631-30577", "ls")`
+    exec!("10874-26631-30577", false, "ls")?`
 ```
 
 The `cmd` argument is a `format` sting, i.e., one can use positional and named arguments as well as variable names:
@@ -25,20 +31,24 @@ As for macro `format!`,  macro `exec!` supports positional arguments:
 
 ```rust
     // example: with position argument "/"
-    println!("ls of {path} is {}", exec!("15911-12192-19189", "ls {}", "/")?);
+    println!("ls of {path} is {}", exec!("15911-12192-19189", false, "ls {}", "/")?);
 ```
 
 `exec!` also supports named arguments:
 
 ```rust
     // example: with named argument p="/tmp"
-    println!("ls of {path} is {}", exec!("15911-12192-19189", "ls {p}", p="/tmp")?);
+    println!("ls of {path} is {}", exec!("15911-12192-19189", false, "ls {p}", p="/tmp")?);
 ```
 
+## Macro `s!`
 
-Macro `s!` is similar to macro `exec!` but it uses crate `log` to issue output (instead of `eprintln!`). 
-Hence, it does not have a flag `verbose`.  Moreover, it logs the command at `info` level, 
-logs the output at `debug` level, and errors at `error` level.
+Macro `s!` is similar to macro `exec!`: `s!` uses crate `log` to issue log output instead of `eprintln!`. 
+Hence, it does not have a flag `verbose`.  Moreover, it  
+
+- logs the executed command with all arguments at `info` level, 
+- logs the output, i.e., the `stdout` of the command, at `debug` level, and 
+- logs errors, i.e., the `stderr` of the command,  at `error` level.
 
 Example:
 

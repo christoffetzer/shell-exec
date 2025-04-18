@@ -184,6 +184,15 @@ macro_rules! s {
     }};
 }
 
+use std::io;
+
+pub fn read_pompt(prompt: &str) -> String {
+    println!("{prompt}");
+    let mut buffer = String::new();
+    io::stdin().read_line(&mut buffer).expect("Failed to read from stdin");
+    buffer
+}
+
 
 #[cfg(test)]
 mod tests {
