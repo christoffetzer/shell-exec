@@ -1,10 +1,10 @@
 [package]
 name = "sh-exec"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 license = "Unlicense"
 authors = [ "Christof Fetzer" ]
-description = "Set of functions and macros to write more concise rust scripts."
+description = "Set of functions and macros to write more concise Rust scripts."
 repository = "https://github.com/christoffetzer/shell-exec"
 documentation = "https://docs.rs/sh-exec"
 homepage = "https://github.com/christoffetzer/shell-exec"

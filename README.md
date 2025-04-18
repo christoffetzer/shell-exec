@@ -50,6 +50,8 @@ Hence, it does not have a flag `verbose`.  Moreover, it
 - logs the output, i.e., the `stdout` of the command, at `debug` level, and 
 - logs errors, i.e., the `stderr` of the command,  at `error` level.
 
+On success of the executed command, `sh!` returns the `stdout` of the executed command wrapped in `Ok(stdout)`.
+
 Example:
 
 ```rust
@@ -60,7 +62,7 @@ Example:
 ```
 
 
-Hence, prints on `stderr` an error message that includes:
+On error, `s!`, logs an error that includes:
 
 - the command line that failed,
 - the error ID,
@@ -71,7 +73,22 @@ Hence, prints on `stderr` an error message that includes:
 
 ## Example
 
-Here is a simple program that uses this crate. Note that you need to define dependency `colored`.
+Here is a simple program that uses this crate. Note that you need to define dependency `sh-exec` to import this crate and additionally dependencies `colored`, and `log` in your Cargo.toml:
+
+```toml
+[dependencies]
+sh-exec = "*"
+colored = "*"
+log =  "*"
+```
+
+and in your Rust program, you import the macros as follows:
+
+```Rust
+use sh_exec::*;
+```
+
+You can use this crate also from within Rust scripts:
 
 ```rust
 #!/usr/bin/env rust-script
@@ -81,12 +98,12 @@ Here is a simple program that uses this crate. Note that you need to define depe
 //! edition = "2024"
 //!
 //! [dependencies]
-//! clap = { version = "4", features = ["derive"] }
-//! sh-exec = "*" 
+//! sh-exec = "*"
 //! colored = "*"
+//! log = "*"
 //! ```
 
-use shell_exec::*;
+use sh_exec::*;
 
 fn main() {
     trap_panics_and_errors!("18428-30925-25863", || {
@@ -99,16 +116,11 @@ fn main() {
         println!("ls -d of / is {}", exec!("15911-12192-19189", false,  "ls -d {}", "/")?);
 
         // example: with named argument p="/tmp"
-        println!("ls of /etc/hosts is {}", exec!("15911-12192-19189", true, "ls {p}", p="/etc/hosts")?);
+        println!("ls of /etc/hosts is {}", s!("15911-12192-19189", "ls {p}", p="/etc/hosts")?);
 
         // Test successful command
         let output = exec!("28328-2323-44343", true, "bash -c 'echo Hello World'")?;
         println!("Output: {}", output);
-
-        // s! the command is executed and the output is returned
-        // s! uses the logger to print the command if the log level is set to info
-        // s! uses the logger to print the output of the command if the log level is set to debug
-        s!("14526-30026-17058", "echo Hello World")?;
 
         // Test failing command
         match exec!("28328-2323-3278", true, "nonexistent_command") {
@@ -116,8 +128,9 @@ fn main() {
             Err(e) => println!("Expected error: {}", e),
         }
         // expecting to fail:
-        s!("14526-30026-17061", "exit 1")?;
- 
+        exec!( "28328-2323-333", true,  "nonexistent_command arg1 arg2")?;
+
+        // We need to help Rust regarding the error type
         Ok::<(), Box<dyn Error>>(())
     });
 }
@@ -130,31 +143,18 @@ $ ./example.rs
 exec!(17068-22053-696,ls -d /etc)
 ls -d of / is /
 
-exec!(15911-12192-19189,ls /etc/hosts)
 ls of /etc/hosts is /etc/hosts
 
 exec!(28328-2323-44343,bash -c 'echo Hello World')
 Output: Hello World
 
 exec!(28328-2323-3278,nonexistent_command)
-Expected error: Command failed: nonexistent_command
-Exit code: 127
-Error ID: 28328-2323-3278
+Expected error: Command failed: 'nonexistent_command'
+sh_exec Exit code: 127
+sh_exec Error ID:  28328-2323-3278
 Standard error:
 sh: 1: nonexistent_command: not found
 
 
 exec!(28328-2323-333,nonexistent_command arg1 arg2)
-trap_panics_and_errors: 18428-30925-25863
-  Version: 0.1.0
-  Name: example
-  Authors: Anonymous
-  Description:
-  Homepage:
-  Repository:
-  Error: Command failed: nonexistent_command arg1 arg2
-Exit code: 127
-Error ID: 28328-2323-333
-Standard error:
-sh: 1: nonexistent_command: not found
 ```

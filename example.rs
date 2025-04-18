@@ -5,9 +5,9 @@
 //! edition = "2024"
 //!
 //! [dependencies]
-//! clap = { version = "4", features = ["derive"] }
 //! sh-exec = "*"
 //! colored = "*"
+//! log = "*"
 //! ```
 
 use sh_exec::*;
@@ -23,7 +23,7 @@ fn main() {
         println!("ls -d of / is {}", exec!("15911-12192-19189", false,  "ls -d {}", "/")?);
 
         // example: with named argument p="/tmp"
-        println!("ls of /etc/hosts is {}", exec!("15911-12192-19189", true, "ls {p}", p="/etc/hosts")?);
+        println!("ls of /etc/hosts is {}", s!("15911-12192-19189", "ls {p}", p="/etc/hosts")?);
 
         // Test successful command
         let output = exec!("28328-2323-44343", true, "bash -c 'echo Hello World'")?;
@@ -36,7 +36,8 @@ fn main() {
         }
         // expecting to fail:
         exec!( "28328-2323-333", true,  "nonexistent_command arg1 arg2")?;
- 
+
+        // We need to help Rust regarding the error type
         Ok::<(), Box<dyn Error>>(())
     });
 }
