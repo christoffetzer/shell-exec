@@ -114,6 +114,18 @@ Example:
         println!("sleep = {:?}", a!("14526-30888026-777", ten_secs, "sleep 2; echo Hello World"));
 ```
 
+
+## Macro `e!`
+
+Macro `e!` executes a command and panics in case an error happens.
+
+Example:
+
+```Rust
+        // macro e! executes a command - use only if panic is ok in case of errors
+        println!("sleep = {:?}", e!("sleep 2; echo Hello World"));
+```
+
 ## `rust-script` Example
 
 Here is a simple program that uses this crate. Note that you need to define dependency `sh-exec` to import this crate and additionally dependencies `colored`, and `log` in your Cargo.toml:

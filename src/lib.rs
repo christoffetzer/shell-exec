@@ -187,6 +187,22 @@ macro_rules! s {
     }};
 }
 
+
+/// Execute a shell command and return the output
+/// Any error results in a panic!
+#[macro_export]
+macro_rules! e {
+    ($($cmd:tt )* ) => {{
+        let formatted_str = &format!($( $cmd )*);
+        let output = execute_command(formatted_str, "no-error-id-specified");
+        // Log output
+        match output.clone() {
+            std::result::Result::Ok(output) => output,
+            Err(e) => panic!("Error executing command {formatted_str}: {}", e),
+        }
+    }};
+}
+
 /// Execute a shell command and return the output
 /// The command is formatted using the given arguments
 /// The command is printed at the INFO level
@@ -243,12 +259,22 @@ macro_rules! a {
 }
 
 use std::io;
+use std::io::Write;
 
-pub fn read_pompt(prompt: &str) -> String {
-    println!("{prompt}");
+pub fn read_prompt(prompt: &str) -> String {
+    print!("{prompt}");
+    // flush stdout to ensure the prompt is displayed immediately
+    // before reading input
+    io::stdout().flush().unwrap();
+    // create a mutable String to store the input
+    // read a line from stdin and store it in the buffer
+    // expect is used to handle any potential errors
+    // while reading from stdin
     let mut buffer = String::new();
     io::stdin().read_line(&mut buffer).expect("Failed to read from stdin");
-    buffer
+    // remove the trailing newline character
+    // and return the trimmed string
+    buffer.trim().to_string()
 }
 
 

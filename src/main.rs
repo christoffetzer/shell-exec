@@ -37,5 +37,18 @@ fn main() -> Result<()> {
         let ten_secs = time::Duration::from_secs(10);
 
         println!("sleep = {:?}", a!("14526-30888026-777", ten_secs, "sleep 2; echo Hello World"));
+
+        // Print a greeting
+        println!("Hello, world!");
+
+        // Ask for the user's name
+        let name = read_prompt("What is your name? ");
+
+        // Print a personalized message
+        println!("Hello, {name}!");
+
+        // Show the current date
+        println!("Today's date is: {date}", date = e!("date"));
+
         Ok(())
     }
