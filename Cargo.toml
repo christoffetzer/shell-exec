@@ -1,21 +1,20 @@
 [package]
-name = "sh-exec"
-version = "0.1.7"
-edition = "2024"
-license = "Unlicense"
-authors = [ "Christof Fetzer" ]
+authors = ["Christof Fetzer"]
+categories = ["development-tools::build-utils"]
 description = "Set of functions and macros to write more concise Rust scripts."
-repository = "https://github.com/christoffetzer/shell-exec"
 documentation = "https://docs.rs/sh-exec"
+edition = "2024"
 homepage = "https://github.com/christoffetzer/shell-exec"
-readme = "README.md"
 keywords = ["script", "exec", "sh-exec"]
-categories = ["development-tools::build-utils"] 
+license = "MIT"
+name = "sh-exec"
+readme = "README.md"
+repository = "https://github.com/christoffetzer/shell-exec"
+version = "0.2.0"
 
 [dependencies]
-shells = "0.2.0"
+anyhow = "1"
 colored = "3.0.0"
-log =  "0.4.27"
 env_logger = "0.11.8"
-anyhow = "1.0.98"
-async-std = "1.13.1"
+log = "0.4.27"
+shells = "0.2.0"
